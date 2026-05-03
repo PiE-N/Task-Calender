@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Task } from '@/app/types';
-import { Droppable } from 'react-beautiful-dnd';
+import { Droppable } from '@hello-pangea/dnd';
 
 interface CalendarProps {
   tasks: Task[];
@@ -121,7 +121,7 @@ export default function Calendar({ tasks, onTaskScheduled }: CalendarProps) {
                       </div>
                     </>
                   )}
-                  {/* react-beautiful-dnd がドラッグ時に必要とするプレースホルダー */}
+                  {/* @hello-pangea/dnd がドラッグ時に必要とするプレースホルダー */}
                   {provided.placeholder}
                 </div>
               )}

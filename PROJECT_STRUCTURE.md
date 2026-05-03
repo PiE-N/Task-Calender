@@ -41,7 +41,7 @@ task-calendar/
 - **TaskItem**: 個別タスクの表示（ドラッグ対応）
 
 ### 3. ドラッグアンドドロップ
-- react-beautiful-dnd を使用
+- @hello-pangea/dnd を使用
 - タスクをカレンダーの日付にドロップしてスケジュール登録
 - スムーズなUX実装
 

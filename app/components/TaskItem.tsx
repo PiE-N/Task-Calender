@@ -1,7 +1,8 @@
+// app/components/TaskItem.tsx
 'use client';
 
 import { Task } from '@/app/types';
-import { Draggable } from 'react-beautiful-dnd';
+import { Draggable } from '@hello-pangea/dnd';
 
 interface TaskItemProps {
   task: Task;
@@ -16,40 +17,45 @@ const priorityColors = {
   high: 'bg-red-100 border-red-300',
 };
 
+// ドラッグ中のスタイルをマウス位置基準に補正
+function getDraggingStyle(style: React.CSSProperties | undefined, snapshot: { isDragging: boolean }) {
+  if (!snapshot.isDragging) return style;
+  return {
+    ...style,
+    transform: style?.transform,
+    // 左方向のオフセットをリセットしてマウス位置を中心にする
+    left: 'auto',
+    top: 'auto',
+  };
+}
+
 export default function TaskItem({ task, index, onEdit, onDelete }: TaskItemProps) {
   return (
-    // ドラッグ可能なタスク項目：このアイテムはカレンダーにドラッグできる
     <Draggable draggableId={task.id} index={index}>
       {(provided, snapshot) => (
         <div
           ref={provided.innerRef}
           {...provided.draggableProps}
           {...provided.dragHandleProps}
+          style={getDraggingStyle(provided.draggableProps.style, snapshot)}
           className={`p-4 mb-2 rounded border-l-4 cursor-move transition ${
-            snapshot.isDragging ? 'bg-gray-50 shadow-lg' : 'bg-white shadow'
+            snapshot.isDragging ? 'bg-gray-50 shadow-lg opacity-90' : 'bg-white shadow'
           } ${priorityColors[task.priority]}`}
         >
           <div className="flex justify-between items-start">
             <div className="flex-1">
-              {/* タスクのタイトル（完了時は打ち消し線） */}
               <h3 className={`font-semibold ${task.completed ? 'line-through text-gray-400' : ''}`}>
                 {task.title}
               </h3>
-              
-              {/* タスクの説明（オプション） */}
               {task.description && (
                 <p className="text-sm text-gray-600 mt-1">{task.description}</p>
               )}
-              
-              {/* スケジュール済みの場合は予定日を表示 */}
               {task.scheduledDate && (
                 <p className="text-xs text-gray-500 mt-2">
                   📅 {new Date(task.scheduledDate).toLocaleDateString()}
                 </p>
               )}
             </div>
-            
-            {/* 編集・削除ボタン */}
             <div className="flex gap-2 ml-2">
               <button
                 onClick={() => onEdit(task)}

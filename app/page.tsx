@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useCallback } from 'react';
-import { DropResult } from 'react-beautiful-dnd';
+import { DropResult } from '@hello-pangea/dnd';
 import TaskList from './components/TaskList';
 import Calendar from './components/Calendar';
 import DragDropProvider from './components/dnd/DragDropProvider';
