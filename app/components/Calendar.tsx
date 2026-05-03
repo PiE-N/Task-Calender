@@ -94,33 +94,38 @@ export default function Calendar({ tasks, onTaskScheduled }: CalendarProps) {
           const dateStr = day ? formatDate(year, month, day) : '';
           const dayTasks = day ? getTasksByDate(dateStr) : [];
 
+          if (!day) {
+            return (
+              <div
+                key={`empty-${index}`}
+                className="min-h-24 p-2 rounded border-2 border-transparent bg-gray-100"
+              />
+            );
+          }
+
           return (
-            <Droppable key={`${month}-${index}`} droppableId={dateStr}>
+            <Droppable key={dateStr} droppableId={dateStr}>
               {(provided, snapshot) => (
                 <div
                   ref={provided.innerRef}
                   {...provided.droppableProps}
-                  className={`min-h-24 p-2 rounded border-2 transition ${
-                    day ? 'bg-white cursor-pointer' : 'bg-gray-100'
-                  } ${snapshot.isDraggingOver ? 'border-blue-500 bg-blue-50' : 'border-gray-200'}`}
+                  className={`min-h-24 p-2 rounded border-2 transition bg-white cursor-pointer ${
+                    snapshot.isDraggingOver ? 'border-blue-500 bg-blue-50' : 'border-gray-200'
+                  }`}
                 >
-                  {day && (
-                    <>
-                      <div className="font-bold text-gray-800 text-lg mb-1">{day}</div>
-                      {/* その日のタスク一覧を表示 */}
-                      <div className="space-y-1">
-                        {dayTasks.map((task) => (
-                          <div
-                            key={task.id}
-                            className="text-xs p-1 rounded bg-blue-100 text-blue-900 truncate"
-                            title={task.title}
-                          >
-                            {task.title}
-                          </div>
-                        ))}
+                  <div className="font-bold text-gray-800 text-lg mb-1">{day}</div>
+                  {/* その日のタスク一覧を表示 */}
+                  <div className="space-y-1">
+                    {dayTasks.map((task) => (
+                      <div
+                        key={task.id}
+                        className="text-xs p-1 rounded bg-blue-100 text-blue-900 truncate"
+                        title={task.title}
+                      >
+                        {task.title}
                       </div>
-                    </>
-                  )}
+                    ))}
+                  </div>
                   {/* @hello-pangea/dnd がドラッグ時に必要とするプレースホルダー */}
                   {provided.placeholder}
                 </div>
