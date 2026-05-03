@@ -16,7 +16,7 @@ export default function TaskList({ tasks, onEdit, onDelete, onAddNew }: TaskList
   const unscheduledTasks = tasks.filter((t) => !t.scheduledDate);
 
   return (
-    <div className="w-full max-w-md bg-gray-50 rounded-lg shadow-md p-6 overflow-y-auto">
+    <div className="w-full h-full bg-gray-50 rounded-lg shadow-md p-6 overflow-y-auto min-h-[500px]">
       {/* ヘッダー：タスク一覧のタイトルと新規タスク追加ボタン */}
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold text-gray-800">タスク一覧</h2>
@@ -38,7 +38,7 @@ export default function TaskList({ tasks, onEdit, onDelete, onAddNew }: TaskList
             <div
               ref={provided.innerRef}
               {...provided.droppableProps}
-              className={`space-y-2 p-2 rounded ${
+              className={`grid grid-cols-3 gap-2 p-2 rounded transition-colors ${
                 snapshot.isDraggingOver ? 'bg-blue-50' : ''
               }`}
             >

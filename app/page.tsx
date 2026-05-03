@@ -101,20 +101,24 @@ export default function Home() {
             タスク・カレンダー管理
           </h1>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-10 gap-6 items-start">
             {/* 左側: タスク一覧パネル */}
-            <TaskList
-              tasks={tasks}
-              onEdit={handleEditTask}
-              onDelete={deleteTask}
-              onAddNew={handleAddTask}
-            />
+            <div className="lg:col-span-3 h-full">
+              <TaskList
+                tasks={tasks}
+                onEdit={handleEditTask}
+                onDelete={deleteTask}
+                onAddNew={handleAddTask}
+              />
+            </div>
 
             {/* 右側: カレンダーパネル */}
-            <Calendar
-              tasks={tasks}
-              onTaskScheduled={scheduleTask}
-            />
+            <div className="lg:col-span-7 h-full">
+              <Calendar
+                tasks={tasks}
+                onTaskScheduled={scheduleTask}
+              />
+            </div>
           </div>
         </div>
 
