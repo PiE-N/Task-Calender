@@ -35,20 +35,9 @@ export default function TaskItem({ task, index, onEdit, onDelete }: TaskItemProp
           ref={provided.innerRef}
           {...provided.draggableProps}
           {...provided.dragHandleProps}
-          onMouseDown={(e) => { // マウスダウン時にクリックオフセットを捕捉
-            // ライブラリのハンドラを安全に呼び出す
-            provided.dragHandleProps?.onMouseDown?.(e);
-
-            // 要素内のどの位置をクリックしたかを記録
-            const rect = e.currentTarget.getBoundingClientRect();
-            setClickOffset({
-              x: e.clientX - rect.left,
-              y: e.clientY - rect.top,
-            });
-          }}
           onPointerDown={(e) => {
-            // 最新版ライブラリが使用するハンドラを優先的に呼び出す
-            provided.dragHandleProps?.onPointerDown?.(e);
+            // 型定義に存在しない場合があるため any キャストでエラーを回避し、実行時のみ呼び出す
+            (provided.dragHandleProps as any)?.onPointerDown?.(e);
 
             const rect = e.currentTarget.getBoundingClientRect();
             setClickOffset({

@@ -15,10 +15,14 @@ export default function Home() {
   // UI状態管理
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    title: string;
+    description: string;
+    priority: Task['priority'];
+  }>({
     title: '',
     description: '',
-    priority: 'medium' as const,
+    priority: 'medium',
   });
 
   // 一意なタスクIDを生成
