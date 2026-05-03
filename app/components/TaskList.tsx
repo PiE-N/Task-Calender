@@ -16,7 +16,7 @@ export default function TaskList({ tasks, onEdit, onDelete, onAddNew }: TaskList
   const unscheduledTasks = tasks.filter((t) => !t.scheduledDate);
 
   return (
-    <div className="w-full h-full bg-gray-50 rounded-lg shadow-md p-6 overflow-y-auto min-h-[500px]">
+    <div className="w-full h-full bg-gray-50 rounded-lg shadow-md p-6 min-h-[500px] flex flex-col">
       {/* ヘッダー：タスク一覧のタイトルと新規タスク追加ボタン */}
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold text-gray-800">タスク一覧</h2>
@@ -28,34 +28,33 @@ export default function TaskList({ tasks, onEdit, onDelete, onAddNew }: TaskList
         </button>
       </div>
 
-      {/* タスクが無い場合はメッセージを表示、有る場合はリスト表示 */}
-      {unscheduledTasks.length === 0 ? (
-        <p className="text-gray-500 text-center py-8">タスクがありません</p>
-      ) : (
-        // ドラッグ＆ドロップ可能なエリア：タスクをここからカレンダーへドラッグできる
-        <Droppable droppableId="task-list">
-          {(provided, snapshot) => (
-            <div
-              ref={provided.innerRef}
-              {...provided.droppableProps}
-              className={`grid grid-cols-3 gap-2 p-2 rounded transition-colors ${
-                snapshot.isDraggingOver ? 'bg-blue-50' : ''
-              }`}
-            >
-              {unscheduledTasks.map((task, index) => (
-                <TaskItem
-                  key={task.id}
-                  task={task}
-                  index={index}
-                  onEdit={onEdit}
-                  onDelete={onDelete}
-                />
-              ))}
-              {provided.placeholder}
-            </div>
-          )}
-        </Droppable>
-      )}
+      {/* ドラッグ＆ドロップ可能なエリア：タスクをここからカレンダーへドラッグ、または戻すことができる */}
+      <Droppable droppableId="task-list">
+        {(provided, snapshot) => (
+          <div
+            ref={provided.innerRef}
+            {...provided.droppableProps}
+            className={`flex-1 grid grid-cols-3 gap-2 p-2 rounded transition-colors content-start overflow-y-auto ${
+              snapshot.isDraggingOver ? 'bg-blue-50 ring-2 ring-blue-200 ring-inset' : ''
+            }`}
+          >
+            {unscheduledTasks.length === 0 && !snapshot.isDraggingOver && (
+              <p className="text-gray-500 text-center py-8 col-span-3">タスクがありません</p>
+            )}
+            {unscheduledTasks.map((task, index) => (
+              <TaskItem
+                key={task.id}
+                task={task}
+                index={index}
+                onEdit={onEdit}
+                onDelete={onDelete}
+                isCompact={false}
+              />
+            ))}
+            {provided.placeholder}
+          </div>
+        )}
+      </Droppable>
     </div>
   );
 }

@@ -3,13 +3,16 @@
 import { useState } from 'react';
 import { Task } from '@/app/types';
 import { Droppable } from '@hello-pangea/dnd';
+import TaskItem from './TaskItem';
 
 interface CalendarProps {
   tasks: Task[];
   onTaskScheduled: (taskId: string, date: string) => void;
+  onEdit: (task: Task) => void;
+  onDelete: (id: string) => void;
 }
 
-export default function Calendar({ tasks, onTaskScheduled }: CalendarProps) {
+export default function Calendar({ tasks, onTaskScheduled, onEdit, onDelete }: CalendarProps) {
   // 現在表示している月の状態管理
   const [currentDate, setCurrentDate] = useState(new Date());
 
@@ -116,14 +119,15 @@ export default function Calendar({ tasks, onTaskScheduled }: CalendarProps) {
                   <div className="font-bold text-gray-800 text-lg mb-1">{day}</div>
                   {/* その日のタスク一覧を表示 */}
                   <div className="space-y-1">
-                    {dayTasks.map((task) => (
-                      <div
+                    {dayTasks.map((task, taskIndex) => (
+                      <TaskItem
                         key={task.id}
-                        className="text-xs p-1 rounded bg-blue-100 text-blue-900 truncate"
-                        title={task.title}
-                      >
-                        {task.title}
-                      </div>
+                        task={task}
+                        index={taskIndex}
+                        onEdit={onEdit}
+                        onDelete={onDelete}
+                        isCompact={true}
+                      />
                     ))}
                   </div>
                   {/* @hello-pangea/dnd がドラッグ時に必要とするプレースホルダー */}

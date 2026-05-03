@@ -85,8 +85,11 @@ export default function Home() {
         return;
       }
 
-      // カレンダーの日付セルにドロップされた場合、タスクをその日付にスケジュール
-      if (destination.droppableId !== 'task-list') {
+      if (destination.droppableId === 'task-list') {
+        // カレンダーからタスク一覧へ戻す（スケジュール解除）
+        scheduleTask(draggableId, '');
+      } else {
+        // カレンダーの日付セルにドロップされた場合、タスクをその日付にスケジュール
         scheduleTask(draggableId, destination.droppableId);
       }
     },
@@ -117,6 +120,8 @@ export default function Home() {
               <Calendar
                 tasks={tasks}
                 onTaskScheduled={scheduleTask}
+                onEdit={handleEditTask}
+                onDelete={deleteTask}
               />
             </div>
           </div>

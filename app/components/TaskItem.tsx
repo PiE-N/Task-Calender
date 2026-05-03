@@ -9,18 +9,41 @@ interface TaskItemProps {
   index: number;
   onEdit: (task: Task) => void;
   onDelete: (id: string) => void;
+  isCompact?: boolean;
 }
 
 const priorityColors = {
-  low: 'bg-blue-100 border-blue-300',
-  medium: 'bg-yellow-100 border-yellow-300',
-  high: 'bg-red-100 border-red-300',
+  low: { border: 'border-blue-300', bg: 'bg-blue-50', text: 'text-blue-900', label: 'bg-blue-100' },
+  medium: { border: 'border-yellow-300', bg: 'bg-yellow-50', text: 'text-yellow-900', label: 'bg-yellow-100' },
+  high: { border: 'border-red-300', bg: 'bg-red-50', text: 'text-red-900', label: 'bg-red-100' },
 };
 
-export default function TaskItem({ task, index, onEdit, onDelete }: TaskItemProps) {
+export default function TaskItem({ task, index, onEdit, onDelete, isCompact = false }: TaskItemProps) {
+  const colors = priorityColors[task.priority];
+
   return (
     <Draggable draggableId={task.id} index={index}>
-      {(provided, snapshot) => (
+      {(provided, snapshot) => {
+        if (isCompact) {
+          return (
+            <div
+              ref={provided.innerRef}
+              {...provided.draggableProps}
+              {...provided.dragHandleProps}
+              style={provided.draggableProps.style}
+              className={`text-[10px] p-1 mb-1 rounded border-l-2 truncate cursor-move transition-shadow ${
+                colors.label
+              } ${colors.border} ${colors.text} ${
+                snapshot.isDragging ? 'shadow-lg ring-1 ring-blue-400 z-50 opacity-90' : 'hover:brightness-95'
+              }`}
+              title={task.title}
+            >
+              {task.title}
+            </div>
+          );
+        }
+
+        return (
         <div
           ref={provided.innerRef}
           {...provided.draggableProps}
@@ -28,7 +51,7 @@ export default function TaskItem({ task, index, onEdit, onDelete }: TaskItemProp
           style={provided.draggableProps.style}
           className={`p-2 rounded border-l-4 cursor-move bg-white shadow min-h-[80px] flex flex-col justify-between transition-shadow ${
             snapshot.isDragging ? 'opacity-70 ring-2 ring-blue-500 shadow-xl z-50' : 'hover:shadow-md'
-          } ${priorityColors[task.priority]}`}
+          } ${colors.bg} ${colors.border}`}
         >
           <div className="flex-1 overflow-hidden">
             <h3 className={`font-bold text-xs leading-tight line-clamp-2 ${
@@ -53,7 +76,8 @@ export default function TaskItem({ task, index, onEdit, onDelete }: TaskItemProp
             </button>
           </div>
         </div>
-      )}
+        );
+      }}
     </Draggable>
   );
 }
