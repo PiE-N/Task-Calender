@@ -19,10 +19,12 @@ export default function Home() {
     title: string;
     description: string;
     priority: Task['priority'];
+    dueDate: string;
   }>({
     title: '',
     description: '',
     priority: 'medium',
+    dueDate: '',
   });
 
   // 一意なタスクIDを生成
@@ -31,7 +33,12 @@ export default function Home() {
   // 新規タスク作成モーダルを開く
   const handleAddTask = () => {
     setEditingTask(null);
-    setFormData({ title: '', description: '', priority: 'medium' });
+    setFormData({
+      title: '',
+      description: '',
+      priority: 'medium',
+      dueDate: '',
+    });
     setIsModalOpen(true);
   };
 
@@ -42,6 +49,7 @@ export default function Home() {
       title: task.title,
       description: task.description || '',
       priority: task.priority,
+      dueDate: (task as any).dueDate || '',
     });
     setIsModalOpen(true);
   };
@@ -52,7 +60,12 @@ export default function Home() {
 
     if (editingTask) {
       // 既存タスクを更新
-      updateTask(editingTask.id, formData);
+      updateTask(editingTask.id, {
+        title: formData.title,
+        description: formData.description || undefined,
+        priority: formData.priority,
+        dueDate: formData.dueDate || undefined,
+      });
     } else {
       // 新規タスクを作成
       const newTask: Task = {
@@ -60,6 +73,7 @@ export default function Home() {
         title: formData.title,
         description: formData.description || undefined,
         priority: formData.priority,
+        dueDate: formData.dueDate || undefined,
         completed: false,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
@@ -100,7 +114,7 @@ export default function Home() {
     <DragDropProvider onDragEnd={handleDragEnd}>
       <main className="min-h-screen p-8">
         <div className="max-w-7xl mx-auto">
-          <h1 className="text-4xl font-bold text-gray-800 mb-8">
+          <h1 className="text-4xl font-bold text-gray-800 mb-8 text-center">
             タスク・カレンダー管理
           </h1>
 
@@ -165,6 +179,21 @@ export default function Home() {
                     placeholder="説明を入力（オプション）"
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
                     rows={3}
+                  />
+                </div>
+
+                {/* 期限入力欄 */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    期限
+                  </label>
+                  <input
+                    type="date"
+                    value={formData.dueDate}
+                    onChange={(e) =>
+                      setFormData({ ...formData, dueDate: e.target.value })
+                    }
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 font-sans"
                   />
                 </div>
 

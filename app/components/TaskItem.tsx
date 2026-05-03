@@ -36,7 +36,9 @@ export default function TaskItem({ task, index, onEdit, onDelete, isCompact = fa
               } ${colors.border} ${colors.text} ${
                 snapshot.isDragging ? 'shadow-lg ring-1 ring-blue-400 z-50 opacity-90' : 'hover:brightness-95'
               }`}
-              title={task.title}
+              title={`${task.title}${
+                (task as any).dueDate ? ` (期限: ${(task as any).dueDate})` : ''
+              }`}
             >
               {task.title}
             </div>
@@ -59,6 +61,11 @@ export default function TaskItem({ task, index, onEdit, onDelete, isCompact = fa
             }`}>
               {task.title}
             </h3>
+            {(task as any).dueDate && (
+              <p className="text-[10px] text-gray-500 mt-1">
+                期限: {new Date((task as any).dueDate).toLocaleDateString()}
+              </p>
+            )}
           </div>
           
           <div className="flex justify-between items-center mt-2 pt-1 border-t border-gray-100">
