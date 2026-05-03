@@ -1,3 +1,10 @@
 AI_SystemPrompt.md
 NUL
 node_modules
+.next
+.env.local
+.env.*.local
+dist
+build
+*.log
+.DS_Store
