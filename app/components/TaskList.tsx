@@ -63,8 +63,34 @@ export default function TaskList({ tasks, onEdit, onDelete, onAddNew }: TaskList
     }
   };
 
-  // ヘッダーを表示すべき位置を特定するための変数
-  let lastGroupLabel = '';
+  // 表示するグループの定義
+  const groupDefinitions = sortBy === 'priority' 
+    ? [
+        { id: 'high', label: '優先度：高', color: 'border-red-200 bg-red-50/60' },
+        { id: 'medium', label: '優先度：中', color: 'border-yellow-200 bg-yellow-50/60' },
+        { id: 'low', label: '優先度：低', color: 'border-blue-200 bg-blue-50/60' },
+      ]
+    : [
+        { id: 'week', label: '期限：1週間以内', color: 'border-red-200 bg-red-50/60' },
+        { id: 'month', label: '期限：1ヶ月以内', color: 'border-yellow-200 bg-yellow-50/60' },
+        { id: 'later', label: '期限：それ以降', color: 'border-blue-200 bg-blue-50/60' },
+      ];
+
+  // 全体のタスクをグループごとに分配
+  const groupedTasks = groupDefinitions.map(group => ({
+    ...group,
+    tasks: unscheduledTasks.filter(t => {
+      if (sortBy === 'priority') return t.priority === group.id;
+      // 期限順の場合は getGroupLabel の結果とラベルが一致するかで判定
+      const label = getGroupLabel(t);
+      if (group.id === 'week') return label === '期限：1週間以内';
+      if (group.id === 'month') return label === '期限：1ヶ月以内';
+      return label === '期限：それ以降' || label === '期限未設定';
+    })
+  }));
+
+  // ドラッグアンドドロップのインデックスを追跡するためのカウンター
+  let globalIndexCounter = 0;
 
   return (
     <div className="w-full h-full bg-gray-50 rounded-lg shadow-md p-6 min-h-[500px] flex flex-col">
@@ -89,46 +115,54 @@ export default function TaskList({ tasks, onEdit, onDelete, onAddNew }: TaskList
         </div>
       </div>
 
-      {/* ドラッグ＆ドロップ可能なエリア：タスクをここからカレンダーへドラッグ、または戻すことができる */}
+      {/* ドラッグ＆ドロップ可能なエリア */}
       <Droppable droppableId="task-list">
         {(provided, snapshot) => (
           <div
             ref={provided.innerRef}
             {...provided.droppableProps}
-            className={`flex-1 grid grid-cols-3 gap-2 p-2 rounded transition-colors content-start overflow-y-auto ${
+            className={`flex-1 flex flex-col gap-8 p-2 w-full rounded transition-colors overflow-y-auto ${
               snapshot.isDraggingOver ? 'bg-blue-50 ring-2 ring-blue-200 ring-inset' : ''
             }`}
           >
-            {unscheduledTasks.length === 0 && !snapshot.isDraggingOver && (
-              <p className="text-gray-500 text-center py-8 col-span-3">タスクがありません</p>
-            )}
-            {unscheduledTasks.map((task, index) => {
-              const currentGroupLabel = getGroupLabel(task);
-              const showHeader = currentGroupLabel !== lastGroupLabel;
-              lastGroupLabel = currentGroupLabel;
+            
+            {groupedTasks.map((group) => (
+              <div 
+                key={group.id} 
+                className={`w-full block rounded-xl border-2 p-4 shadow-sm ${group.color} transition-all min-h-[120px]`}
+              >
+                <div className="flex items-center gap-2 mb-3">
+                  <span className={`flex-shrink-0 w-3 h-3 rounded-full border border-black/20 ${
+                    group.id === 'high' || group.id === 'week' ? 'bg-red-500' : 
+                    group.id === 'medium' || group.id === 'month' ? 'bg-yellow-500' : 
+                    'bg-blue-500'
+                  }`}></span>
+                  <h3 className="text-sm font-bold text-gray-700 uppercase tracking-tight whitespace-nowrap">
+                    {group.label} <span className="ml-1 opacity-60">({group.tasks.length})</span>
+                  </h3>
+                  <div className="h-px bg-gray-300/30 w-full" />
+                </div>
 
-              return (
-                <Fragment key={task.id}>
-                  {showHeader && (
-                    <div className="col-span-3 mt-8 mb-3 first:mt-2">
-                      <div className="flex items-center gap-2">
-                        <h3 className="text-xs font-black text-gray-400 uppercase tracking-widest whitespace-nowrap">
-                          {currentGroupLabel}
-                        </h3>
-                        <div className="h-px bg-gray-200 w-full" />
-                      </div>
-                    </div>
+                <div className="grid grid-cols-3 gap-3 content-start">
+                  {group.tasks.map((task) => {
+                    const currentIndex = globalIndexCounter++;
+                    return (
+                      <TaskItem
+                        key={task.id}
+                        task={task}
+                        index={currentIndex}
+                        onEdit={onEdit}
+                        onDelete={onDelete}
+                        isCompact={false}
+                      />
+                    );
+                  })}
+                  {group.tasks.length === 0 && (
+                    <div className="col-span-3 py-4 text-center text-[10px] text-gray-400 italic">アイテムなし</div>
                   )}
-                  <TaskItem
-                    task={task}
-                    index={index}
-                    onEdit={onEdit}
-                    onDelete={onDelete}
-                    isCompact={false}
-                  />
-                </Fragment>
-              );
-            })}
+                </div>
+              </div>
+            ))}
             {provided.placeholder}
           </div>
         )}

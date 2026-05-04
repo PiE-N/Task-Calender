@@ -13,13 +13,14 @@ interface TaskItemProps {
 }
 
 const priorityColors = {
-  low: { border: 'border-green-300', bg: 'bg-green-50', text: 'text-green-900', label: 'bg-green-100' }, // 薄い緑色
+  low: { border: 'border-blue-300', bg: 'bg-blue-100/80', text: 'text-blue-900', label: 'bg-blue-200' }, // 青色
   medium: { border: 'border-yellow-300', bg: 'bg-yellow-50', text: 'text-yellow-900', label: 'bg-yellow-100' },
-  high: { border: 'border-red-300', bg: 'bg-red-50', text: 'text-red-900', label: 'bg-red-100' },
+  high: { border: 'border-red-300', bg: 'bg-red-50', text: 'text-red-900', label: 'bg-red-100' }, 
 };
 
 export default function TaskItem({ task, index, onEdit, onDelete, isCompact = false }: TaskItemProps) {
   const dueDate = (task as any).dueDate;
+
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
@@ -32,17 +33,9 @@ export default function TaskItem({ task, index, onEdit, onDelete, isCompact = fa
 
   const diffDays = dueDate ? getDiffDays(dueDate) : Infinity;
 
-  // 優先度と期限を比較し、最も高い緊急度を選択 (赤 > 黄 > 緑)
-  const getUrgencyLevel = (): 'high' | 'medium' | 'low' => {
-    // 1. 赤 (最優先): 優先度が「高」または期限が7日以内
-    if (task.priority === 'high' || diffDays <= 7) return 'high';
-    // 2. 黄: 優先度が「中」または期限が30日以内
-    if (task.priority === 'medium' || diffDays <= 30) return 'medium';
-    // 3. 青 (低): それ以外
-    return 'low';
-  };
-
-  const colors = priorityColors[getUrgencyLevel()];
+  // 色分けは純粋に優先度のみに基づき、期限が近い（7日以内）場合はフラグを立てる
+  const isNearDeadline = diffDays <= 7;
+  const colors = priorityColors[task.priority];
 
   return (
     <Draggable draggableId={task.id} index={index}>
@@ -72,7 +65,7 @@ export default function TaskItem({ task, index, onEdit, onDelete, isCompact = fa
           {...provided.draggableProps}
           {...provided.dragHandleProps}
           style={provided.draggableProps.style}
-          className={`p-2 rounded border-l-4 cursor-move shadow min-h-[80px] flex flex-col justify-between transition-all ${
+          className={`p-2 rounded border-l-4 cursor-move shadow min-h-[80px] flex flex-col justify-between transition-all border-y border-r border-black/10 ${
             snapshot.isDragging ? 'opacity-70 ring-2 ring-blue-500 shadow-xl z-50' : 'hover:shadow-md'
           } ${colors.bg} ${colors.border}`}
         >
@@ -83,7 +76,7 @@ export default function TaskItem({ task, index, onEdit, onDelete, isCompact = fa
               {task.title}
             </h3>
             {dueDate && (
-              <p className="text-[10px] text-gray-500 mt-1">
+              <p className={`text-[10px] mt-1 ${isNearDeadline ? 'font-bold text-red-600' : 'text-gray-500'}`}>
                   期限: {new Date(dueDate).toLocaleDateString()}
               </p>
             )}
