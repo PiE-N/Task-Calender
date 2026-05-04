@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, Fragment } from 'react';
 import { Task } from '@/app/types';
 import TaskItem from './TaskItem';
 import { Droppable } from '@hello-pangea/dnd';
@@ -41,6 +41,31 @@ export default function TaskList({ tasks, onEdit, onDelete, onAddNew }: TaskList
       }
     });
 
+  // グループヘッダー用の判定ロジック
+  const getGroupLabel = (task: Task) => {
+    if (sortBy === 'priority') {
+      const labels = { high: '優先度：高', medium: '優先度：中', low: '優先度：低' };
+      return labels[task.priority];
+    } else {
+      const dueDate = (task as any).dueDate as string;
+      if (!dueDate) return '期限未設定';
+      
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      const [year, month, day] = dueDate.split('-').map(Number);
+      const target = new Date(year, month - 1, day);
+      const diffDays = Math.floor((target.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+
+      if (diffDays <= 7) return '期限：1週間以内';
+      if (diffDays <= 30) return '期限：1ヶ月以内';
+      return '期限：それ以降';
+    }
+  };
+
+  // ヘッダーを表示すべき位置を特定するための変数
+  let lastGroupLabel = '';
+
   return (
     <div className="w-full h-full bg-gray-50 rounded-lg shadow-md p-6 min-h-[500px] flex flex-col">
       {/* ヘッダー：タスク一覧のタイトルと新規タスク追加ボタン */}
@@ -77,16 +102,33 @@ export default function TaskList({ tasks, onEdit, onDelete, onAddNew }: TaskList
             {unscheduledTasks.length === 0 && !snapshot.isDraggingOver && (
               <p className="text-gray-500 text-center py-8 col-span-3">タスクがありません</p>
             )}
-            {unscheduledTasks.map((task, index) => (
-              <TaskItem
-                key={task.id}
-                task={task}
-                index={index}
-                onEdit={onEdit}
-                onDelete={onDelete}
-                isCompact={false}
-              />
-            ))}
+            {unscheduledTasks.map((task, index) => {
+              const currentGroupLabel = getGroupLabel(task);
+              const showHeader = currentGroupLabel !== lastGroupLabel;
+              lastGroupLabel = currentGroupLabel;
+
+              return (
+                <Fragment key={task.id}>
+                  {showHeader && (
+                    <div className="col-span-3 mt-8 mb-3 first:mt-2">
+                      <div className="flex items-center gap-2">
+                        <h3 className="text-xs font-black text-gray-400 uppercase tracking-widest whitespace-nowrap">
+                          {currentGroupLabel}
+                        </h3>
+                        <div className="h-px bg-gray-200 w-full" />
+                      </div>
+                    </div>
+                  )}
+                  <TaskItem
+                    task={task}
+                    index={index}
+                    onEdit={onEdit}
+                    onDelete={onDelete}
+                    isCompact={false}
+                  />
+                </Fragment>
+              );
+            })}
             {provided.placeholder}
           </div>
         )}

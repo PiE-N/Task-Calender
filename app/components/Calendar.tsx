@@ -51,6 +51,7 @@ export default function Calendar({ tasks, onTaskScheduled, onEdit, onDelete }: C
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
   const monthName = currentDate.toLocaleDateString('ja-JP', { month: 'long' });
+  const today = new Date();
 
   // カレンダーグリッド用の日付配列を構築
   // 月始まり前の空白セル + その月の全ての日付を含む
@@ -67,7 +68,12 @@ export default function Calendar({ tasks, onTaskScheduled, onEdit, onDelete }: C
   }
 
   return (
-    <div className="w-full bg-white rounded-lg shadow-md p-6 overflow-y-auto">
+    <div className="w-full bg-white rounded-lg shadow-md p-6 overflow-y-auto relative">
+      {/* 今日の日付を表示 */}
+      <div className="absolute top-2 right-6 text-xs text-gray-400 font-semibold tracking-wider">
+        今日: {today.toLocaleDateString('ja-JP', { year: 'numeric', month: '2-digit', day: '2-digit', weekday: 'short' })}
+      </div>
+
       {/* ヘッダー：月の切り替えボタンと月名 */}
       <div className="flex justify-between items-center mb-6">
         <button onClick={handlePrevMonth} className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300">
