@@ -89,8 +89,13 @@ export default function Calendar({ tasks, onTaskScheduled, onEdit, onDelete }: C
 
       {/* 曜日ヘッダー */}
       <div className="grid grid-cols-7 gap-2 mb-4">
-        {['日', '月', '火', '水', '木', '金', '土'].map((day) => (
-          <div key={day} className="text-center font-bold text-gray-600 py-2">
+        {['日', '月', '火', '水', '木', '金', '土'].map((day, dayIndex) => (
+          <div 
+            key={day} 
+            className={`text-center font-bold py-2 ${
+              dayIndex === 0 ? 'text-red-600' : dayIndex === 6 ? 'text-blue-600' : 'text-gray-600'
+            }`}
+          >
             {day}
           </div>
         ))}
@@ -100,6 +105,10 @@ export default function Calendar({ tasks, onTaskScheduled, onEdit, onDelete }: C
       <div className="grid grid-cols-7 gap-2">
         {days.map((day, index) => {
           // dayがnullの場合は空白セル、そうでなければ日付セル
+          const isSunday = index % 7 === 0;
+          const isSaturday = index % 7 === 6;
+          const weekendBg = isSunday ? 'bg-red-50' : isSaturday ? 'bg-blue-50' : '';
+          
           const dateStr = day ? formatDate(year, month, day) : '';
           const dayTasks = day ? getTasksByDate(dateStr) : [];
 
@@ -107,7 +116,7 @@ export default function Calendar({ tasks, onTaskScheduled, onEdit, onDelete }: C
             return (
               <div
                 key={`empty-${index}`}
-                className="min-h-24 p-2 rounded border-2 border-transparent bg-gray-100"
+                className={`min-h-24 p-2 rounded border-2 border-transparent ${weekendBg || 'bg-gray-100'}`}
               />
             );
           }
@@ -118,11 +127,15 @@ export default function Calendar({ tasks, onTaskScheduled, onEdit, onDelete }: C
                 <div
                   ref={provided.innerRef}
                   {...provided.droppableProps}
-                  className={`min-h-24 p-2 rounded border-2 transition bg-white cursor-pointer ${
-                    snapshot.isDraggingOver ? 'border-blue-500 bg-blue-50' : 'border-gray-200'
+                  className={`min-h-24 p-2 rounded border-2 transition cursor-pointer ${
+                    snapshot.isDraggingOver 
+                      ? 'border-blue-500 bg-blue-100' 
+                      : `border-gray-200 ${weekendBg || 'bg-white'}`
                   }`}
                 >
-                  <div className="font-bold text-gray-800 text-lg mb-1">{day}</div>
+                  <div className={`font-bold text-lg mb-1 ${isSunday ? 'text-red-600' : isSaturday ? 'text-blue-600' : 'text-gray-800'}`}>
+                    {day}
+                  </div>
                   {/* その日のタスク一覧を表示 */}
                   <div className="space-y-1">
                     {dayTasks.map((task, taskIndex) => (
