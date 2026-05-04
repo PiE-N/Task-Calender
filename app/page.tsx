@@ -8,6 +8,8 @@ import DragDropProvider from './components/dnd/DragDropProvider';
 import { useTaskStore } from './context/TaskContext';
 import { Task } from './types';
 
+import DayScheduleModal from './components/DayScheduleModal'; // 新しいモーダルをインポート
+
 export default function Home() {
   // Zustand ストアからタスク管理機能を取得
   const { tasks, addTask, updateTask, deleteTask, scheduleTask } = useTaskStore();
@@ -15,6 +17,8 @@ export default function Home() {
   // UI状態管理
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
+  const [isDayScheduleModalOpen, setIsDayScheduleModalOpen] = useState(false); // 日別スケジュールモーダルの開閉状態
+  const [selectedDateForSchedule, setSelectedDateForSchedule] = useState(''); // 日別スケジュール表示対象の日付
   const [formData, setFormData] = useState<{
     title: string;
     description: string;
@@ -110,6 +114,12 @@ export default function Home() {
     [scheduleTask]
   );
 
+  // カレンダーの日をクリックした際に日別スケジュールモーダルを開く
+  const handleOpenDayScheduleModal = (date: string) => {
+    setSelectedDateForSchedule(date);
+    setIsDayScheduleModalOpen(true);
+  };
+
   return (
     <DragDropProvider onDragEnd={handleDragEnd}>
       <main className="min-h-screen p-8">
@@ -136,6 +146,7 @@ export default function Home() {
                 onTaskScheduled={scheduleTask}
                 onEdit={handleEditTask}
                 onDelete={deleteTask}
+                onDayClick={handleOpenDayScheduleModal} // カレンダーの日クリックハンドラを渡す
               />
             </div>
           </div>
@@ -237,6 +248,13 @@ export default function Home() {
             </div>
           </div>
         )}
+
+        {/* 日別スケジュール表示モーダル */}
+        <DayScheduleModal
+          date={selectedDateForSchedule}
+          isOpen={isDayScheduleModalOpen}
+          onClose={() => setIsDayScheduleModalOpen(false)}
+        />
       </main>
     </DragDropProvider>
   );

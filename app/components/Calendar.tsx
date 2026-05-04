@@ -10,9 +10,10 @@ interface CalendarProps {
   onTaskScheduled: (taskId: string, date: string) => void;
   onEdit: (task: Task) => void;
   onDelete: (id: string) => void;
+  onDayClick: (date: string) => void; // 日付クリック時のハンドラを追加
 }
 
-export default function Calendar({ tasks, onTaskScheduled, onEdit, onDelete }: CalendarProps) {
+export default function Calendar({ tasks, onTaskScheduled, onEdit, onDelete, onDayClick }: CalendarProps) {
   // 現在表示している月の状態管理
   const [currentDate, setCurrentDate] = useState(new Date());
 
@@ -127,6 +128,7 @@ export default function Calendar({ tasks, onTaskScheduled, onEdit, onDelete }: C
                 <div
                   ref={provided.innerRef}
                   {...provided.droppableProps}
+                  onClick={() => day && onDayClick(dateStr)} // 日付クリックでモーダルを開く
                   className={`min-h-24 p-2 rounded border-2 transition cursor-pointer ${
                     snapshot.isDraggingOver 
                       ? 'border-blue-500 bg-blue-100' 
