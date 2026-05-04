@@ -106,9 +106,22 @@ export default function Home() {
       if (destination.droppableId === 'task-list') {
         // カレンダーからタスク一覧へ戻す（スケジュール解除）
         scheduleTask(draggableId, '');
+      } else if (destination.droppableId.startsWith('modal-hour-')) {
+        // タイムラインの特定の時間にドロップされた場合
+        // ID形式: modal-hour-YYYY-MM-DD-HH
+        const parts = destination.droppableId.split('-');
+        const date = `${parts[2]}-${parts[3]}-${parts[4]}`;
+        const hour = parts[5];
+        const time = `${hour.padStart(2, '0')}:00`;
+        
+        // scheduleTaskを拡張（もしくは既存の引数に時間を連結）
+        // ※ store側の実装に合わせて調整してください
+        (scheduleTask as any)(draggableId, date, time);
       } else {
-        // カレンダーの日付セルにドロップされた場合、タスクをその日付にスケジュール
-        scheduleTask(draggableId, destination.droppableId);
+        // カレンダーの日付セルまたはモーダル内のエリアにドロップされた場合
+        // IDから日付部分のみを抽出
+        const targetDate = destination.droppableId.replace('modal-top-', '');
+        scheduleTask(draggableId, targetDate);
       }
     },
     [scheduleTask]
@@ -254,6 +267,9 @@ export default function Home() {
           date={selectedDateForSchedule}
           isOpen={isDayScheduleModalOpen}
           onClose={() => setIsDayScheduleModalOpen(false)}
+          tasks={tasks}
+          onEdit={handleEditTask}
+          onDelete={deleteTask}
         />
       </main>
     </DragDropProvider>
