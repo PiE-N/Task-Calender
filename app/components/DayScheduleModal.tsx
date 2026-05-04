@@ -26,8 +26,8 @@ export default function DayScheduleModal({ date, isOpen, onClose, tasks, onEdit,
 
   // その日のタスクを抽出
   const dayTasks = tasks.filter((task) => task.scheduledDate === date);
-  const unscheduledDayTasks = dayTasks.filter(t => !(t as any).startTime); // 時間未設定
-  const scheduledDayTasks = dayTasks.filter(t => !!(t as any).startTime);   // 時間設定済み
+  const unscheduledDayTasks = dayTasks.filter(t => !t.startTime); // 時間未設定
+  const scheduledDayTasks = dayTasks.filter(t => !!t.startTime);   // 時間設定済み
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -57,7 +57,7 @@ export default function DayScheduleModal({ date, isOpen, onClose, tasks, onEdit,
                     className="flex gap-2 h-full items-start min-h-[50px]"
                   >
                     {unscheduledDayTasks.map((task, index) => (
-                      <div key={task.id} className="w-24 flex-shrink-0">
+                      <div key={task.id} className="w-48 flex-shrink-0">
                         <TaskItem
                           task={task}
                           index={index}
@@ -79,7 +79,7 @@ export default function DayScheduleModal({ date, isOpen, onClose, tasks, onEdit,
             <div className="min-w-[2400px] flex h-full">
               {Array.from({ length: 24 }).map((_, hour) => {
                 const timeStr = `${String(hour).padStart(2, '0')}:00`;
-                const tasksInHour = scheduledDayTasks.filter(t => (t as any).startTime === timeStr);
+                const tasksInHour = scheduledDayTasks.filter(t => t.startTime === timeStr);
 
                 return (
                   <div key={hour} className="w-24 flex-shrink-0 flex flex-col border-r border-gray-200">

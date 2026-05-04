@@ -24,11 +24,15 @@ export default function Home() {
     description: string;
     priority: Task['priority'];
     dueDate: string;
+    startTime: string;
+    duration: string;
   }>({
     title: '',
     description: '',
     priority: 'medium',
     dueDate: '',
+    startTime: '',
+    duration: '',
   });
 
   // 一意なタスクIDを生成
@@ -42,6 +46,8 @@ export default function Home() {
       description: '',
       priority: 'medium',
       dueDate: '',
+      startTime: '',
+      duration: '',
     });
     setIsModalOpen(true);
   };
@@ -53,7 +59,9 @@ export default function Home() {
       title: task.title,
       description: task.description || '',
       priority: task.priority,
-      dueDate: (task as any).dueDate || '',
+      dueDate: task.dueDate || '',
+      startTime: task.startTime || '',
+      duration: task.duration || '',
     });
     setIsModalOpen(true);
   };
@@ -69,6 +77,8 @@ export default function Home() {
         description: formData.description || undefined,
         priority: formData.priority,
         dueDate: formData.dueDate || undefined,
+        startTime: formData.startTime || undefined,
+        duration: formData.duration || undefined,
       });
     } else {
       // 新規タスクを作成
@@ -79,6 +89,8 @@ export default function Home() {
         priority: formData.priority,
         dueDate: formData.dueDate || undefined,
         completed: false,
+        startTime: formData.startTime || undefined,
+        duration: formData.duration || undefined,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
@@ -114,9 +126,7 @@ export default function Home() {
         const hour = parts[5];
         const time = `${hour.padStart(2, '0')}:00`;
         
-        // scheduleTaskを拡張（もしくは既存の引数に時間を連結）
-        // ※ store側の実装に合わせて調整してください
-        (scheduleTask as any)(draggableId, date, time);
+        scheduleTask(draggableId, date, time);
       } else {
         // カレンダーの日付セルまたはモーダル内のエリアにドロップされた場合
         // IDから日付部分のみを抽出
@@ -167,14 +177,14 @@ export default function Home() {
 
         {/* タスク作成・編集モーダル */}
         {isModalOpen && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
             <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
               <h2 className="text-2xl font-bold mb-4">
                 {editingTask ? 'タスク編集' : '新規タスク'}
               </h2>
 
-              <div className="space-y-4">
-                {/* タスク名入力欄 */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+                {/* 1行目: タスク名 | 開始時刻 */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     タスク名 <span className="text-red-500">*</span>
@@ -182,46 +192,50 @@ export default function Home() {
                   <input
                     type="text"
                     value={formData.title}
-                    onChange={(e) =>
-                      setFormData({ ...formData, title: e.target.value })
-                    }
+                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                     placeholder="タスク名を入力"
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    開始時刻
+                  </label>
+                  <input
+                    type="time"
+                    value={formData.startTime}
+                    onChange={(e) => setFormData({ ...formData, startTime: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
 
-                {/* 説明入力欄 */}
+                {/* 2行目: 説明 | 所要時間 */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     説明
                   </label>
                   <textarea
                     value={formData.description}
-                    onChange={(e) =>
-                      setFormData({ ...formData, description: e.target.value })
-                    }
-                    placeholder="説明を入力（オプション）"
+                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                    placeholder="説明を入力"
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
                     rows={3}
                   />
                 </div>
-
-                {/* 期限入力欄 */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    期限
+                    所要時間 (分)
                   </label>
                   <input
-                    type="date"
-                    value={formData.dueDate}
-                    onChange={(e) =>
-                      setFormData({ ...formData, dueDate: e.target.value })
-                    }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 font-sans"
+                    type="number"
+                    value={formData.duration}
+                    onChange={(e) => setFormData({ ...formData, duration: e.target.value })}
+                    placeholder="例: 60"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
 
-                {/* 優先度選択 */}
+                {/* 3行目: 優先度 | 期限 */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     優先度
@@ -240,6 +254,17 @@ export default function Home() {
                     <option value="medium">中</option>
                     <option value="low">低</option>
                   </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    期限
+                  </label>
+                  <input
+                    type="date"
+                    value={formData.dueDate}
+                    onChange={(e) => setFormData({ ...formData, dueDate: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 font-sans"
+                  />
                 </div>
               </div>
 

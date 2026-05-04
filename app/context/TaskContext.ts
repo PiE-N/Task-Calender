@@ -6,7 +6,7 @@ interface TaskStore {
   addTask: (task: Task) => void;
   updateTask: (id: string, updates: Partial<Task>) => void;
   deleteTask: (id: string) => void;
-  scheduleTask: (taskId: string, date: string) => void;
+  scheduleTask: (taskId: string, date: string, startTime?: string, duration?: string) => void;
   unscheduleTask: (taskId: string) => void;
 }
 
@@ -40,11 +40,17 @@ export const useTaskStore = create<TaskStore>((set) => ({
     })),
   
   // タスクをカレンダーの特定の日付にスケジュール
-  scheduleTask: (taskId, date) =>
+  scheduleTask: (taskId, date, startTime, duration) =>
     set((state) => ({
       tasks: state.tasks.map((task) =>
         task.id === taskId
-          ? { ...task, scheduledDate: date, updatedAt: new Date().toISOString() }
+          ? { 
+              ...task, 
+              scheduledDate: date || undefined, 
+              startTime: startTime || undefined, 
+              duration: duration || undefined, 
+              updatedAt: new Date().toISOString() 
+            }
           : task
       ),
     })),

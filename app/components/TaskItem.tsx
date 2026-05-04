@@ -19,7 +19,7 @@ const priorityColors = {
 };
 
 export default function TaskItem({ task, index, onEdit, onDelete, isCompact = false }: TaskItemProps) {
-  const dueDate = (task as any).dueDate;
+  const { dueDate, startTime, duration } = task;
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -52,7 +52,9 @@ export default function TaskItem({ task, index, onEdit, onDelete, isCompact = fa
               } ${colors.border} ${colors.text} ${
                 snapshot.isDragging ? 'shadow-lg ring-1 ring-blue-400 z-50 opacity-90' : 'hover:brightness-95'
               }`}
-              title={`${task.title}${dueDate ? ` (期限: ${dueDate})` : ''}`}
+              title={`${task.title}${dueDate ? ` (期限: ${dueDate})` : ''}${
+                startTime ? ` (${startTime}${duration ? ` ${duration}分` : ''})` : ''
+              }`}
             >
               {task.title}
             </div>
