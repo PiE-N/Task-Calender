@@ -44,56 +44,63 @@ export default function DayScheduleModal({ date, isOpen, onClose, tasks, onEdit,
           </button>
         </div>
 
-        <div className="flex-1 flex flex-col overflow-hidden border border-gray-200 rounded bg-white shadow-inner">
-          {/* 1. 固定エリア: 登録済みタスク (時間未設定) - ここは常に表示 */}
-          <div className="p-4 border-b border-gray-200 bg-white z-20">
+        {/* Main content area: Left for unscheduled tasks, Right for vertical timeline */}
+        <div className="flex-1 flex overflow-hidden border border-gray-200 rounded bg-white shadow-inner">
+          {/* 左側: 未配置のタスク (縦方向に表示) */}
+          <div className="w-1/4 p-4 border-r border-gray-200 bg-white flex flex-col">
             <h3 className="text-xs font-bold text-gray-400 mb-2 uppercase tracking-wider">未配置のタスク</h3>
-            <div className="overflow-x-auto pb-2">
-              <Droppable droppableId={`modal-top-${date}`} direction="horizontal">
-                {(provided) => (
-                  <div
-                    ref={provided.innerRef}
-                    {...provided.droppableProps}
-                    className="flex gap-2 h-full items-start min-h-[50px]"
-                  >
-                    {unscheduledDayTasks.map((task, index) => (
-                      <div key={task.id} className="w-48 flex-shrink-0">
-                        <TaskItem
-                          task={task}
-                          index={index}
-                          onEdit={onEdit}
-                          onDelete={onDelete}
-                          isCompact={true}
-                        />
-                      </div>
-                    ))}
-                    {provided.placeholder}
-                  </div>
-                )}
-              </Droppable>
-            </div>
+            <Droppable droppableId={`modal-top-${date}`} direction="vertical">
+              {(provided) => (
+                <div
+                  ref={provided.innerRef}
+                  {...provided.droppableProps}
+                  className="flex flex-col gap-2 flex-1 overflow-y-auto"
+                >
+                  {unscheduledDayTasks.map((task, index) => (
+                    <TaskItem
+                      key={task.id}
+                      task={task}
+                      index={index}
+                      onEdit={onEdit} // クリックで編集モーダルを開く
+                      onDelete={onDelete}
+                      isCompact={true}
+                      isDraggable={false}
+                    />
+                  ))}
+                  {provided.placeholder}
+                </div>
+              )}
+            </Droppable>
           </div>
 
-          {/* 2. スクロールエリア: タイムライン */}
-          <div className="flex-1 overflow-auto bg-gray-50">
-            <div className="min-w-[2400px] flex h-full">
+          {/* 右側: タイムライン (縦方向) */}
+          <div className="flex-1 flex flex-col overflow-y-auto bg-gray-50">
               {Array.from({ length: 24 }).map((_, hour) => {
-                const timeStr = `${String(hour).padStart(2, '0')}:00`;
-                const tasksInHour = scheduledDayTasks.filter(t => t.startTime === timeStr);
+                const hourString = String(hour).padStart(2, '0');
+                const droppableId = `modal-hour-${date}-${hour}`;
+                const tasksInHour = scheduledDayTasks.filter(t => {
+                  // startTimeが設定されており、かつその時間のタスクをフィルタリング
+                  const taskHour = t.startTime ? parseInt(t.startTime.split(':')[0], 10) : -1;
+                  return taskHour === hour;
+                });
 
                 return (
-                  <div key={hour} className="w-24 flex-shrink-0 flex flex-col border-r border-gray-200">
-                    <div className="py-3 bg-white border-b border-gray-300 text-center text-sm font-black text-gray-600 sticky top-0 z-10">
-                      {timeStr}
+                  <div key={hour} className="flex border-b border-gray-100 min-h-[64px] group">
+                    {/* 左側：時刻ラベル */}
+                    <div className="w-16 flex-shrink-0 py-2 pr-4 text-right bg-white border-r border-gray-100 sticky left-0 z-10">
+                      <span className="text-xs font-medium text-gray-400">
+                        {hourString}:00
+                      </span>
                     </div>
                     
-                    <Droppable droppableId={`modal-hour-${date}-${hour}`}>
+                    {/* 右側：タスクをドロップできるエリア (ドラッグでの配置は無効) */}
+                    <Droppable droppableId={droppableId} isDropDisabled={true}>
                       {(provided, snapshot) => (
                         <div
                           ref={provided.innerRef}
                           {...provided.droppableProps}
-                          className={`flex-1 p-2 flex flex-col gap-2 min-h-[200px] transition-colors ${
-                            snapshot.isDraggingOver ? 'bg-blue-100' : ''
+                          className={`flex-1 p-1 flex flex-col gap-1 transition-colors ${
+                            snapshot.isDraggingOver ? 'bg-blue-50' : 'bg-white'
                           }`}
                         >
                           {tasksInHour.map((task, index) => (
@@ -104,6 +111,7 @@ export default function DayScheduleModal({ date, isOpen, onClose, tasks, onEdit,
                               onEdit={onEdit}
                               onDelete={onDelete}
                               isCompact={true}
+                              isDraggable={false}
                             />
                           ))}
                           {provided.placeholder}
@@ -113,7 +121,6 @@ export default function DayScheduleModal({ date, isOpen, onClose, tasks, onEdit,
                   </div>
                 );
               })}
-            </div>
           </div>
         </div>
       </div>

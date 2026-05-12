@@ -24,6 +24,7 @@ export default function Home() {
     description: string;
     priority: Task['priority'];
     dueDate: string;
+    scheduledDate: string;
     startTime: string;
     duration: string;
   }>({
@@ -31,6 +32,7 @@ export default function Home() {
     description: '',
     priority: 'medium',
     dueDate: '',
+    scheduledDate: '',
     startTime: '',
     duration: '',
   });
@@ -46,6 +48,7 @@ export default function Home() {
       description: '',
       priority: 'medium',
       dueDate: '',
+      scheduledDate: '',
       startTime: '',
       duration: '',
     });
@@ -60,6 +63,7 @@ export default function Home() {
       description: task.description || '',
       priority: task.priority,
       dueDate: task.dueDate || '',
+      scheduledDate: task.scheduledDate || '',
       startTime: task.startTime || '',
       duration: task.duration || '',
     });
@@ -77,6 +81,7 @@ export default function Home() {
         description: formData.description || undefined,
         priority: formData.priority,
         dueDate: formData.dueDate || undefined,
+        scheduledDate: formData.scheduledDate || undefined,
         startTime: formData.startTime || undefined,
         duration: formData.duration || undefined,
       });
@@ -88,6 +93,7 @@ export default function Home() {
         description: formData.description || undefined,
         priority: formData.priority,
         dueDate: formData.dueDate || undefined,
+        scheduledDate: formData.scheduledDate || undefined,
         completed: false,
         startTime: formData.startTime || undefined,
         duration: formData.duration || undefined,
@@ -177,14 +183,14 @@ export default function Home() {
 
         {/* タスク作成・編集モーダル */}
         {isModalOpen && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[60] p-4">
             <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
               <h2 className="text-2xl font-bold mb-4">
                 {editingTask ? 'タスク編集' : '新規タスク'}
               </h2>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
-                {/* 1行目: タスク名 | 開始時刻 */}
+                {/* 1行目: タスク名 | 日付 */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     タスク名 <span className="text-red-500">*</span>
@@ -199,17 +205,17 @@ export default function Home() {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    開始時刻
+                    日付
                   </label>
                   <input
-                    type="time"
-                    value={formData.startTime}
-                    onChange={(e) => setFormData({ ...formData, startTime: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    type="date"
+                    value={formData.scheduledDate}
+                    onChange={(e) => setFormData({ ...formData, scheduledDate: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 font-sans"
                   />
                 </div>
 
-                {/* 2行目: 説明 | 所要時間 */}
+                {/* 2行目: 説明 | 開始時刻 */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     説明
@@ -224,18 +230,17 @@ export default function Home() {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    所要時間 (分)
+                    開始時刻
                   </label>
                   <input
-                    type="number"
-                    value={formData.duration}
-                    onChange={(e) => setFormData({ ...formData, duration: e.target.value })}
-                    placeholder="例: 60"
+                    type="time"
+                    value={formData.startTime}
+                    onChange={(e) => setFormData({ ...formData, startTime: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
 
-                {/* 3行目: 優先度 | 期限 */}
+                {/* 3行目: 優先度 | 所要時間 */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     優先度
@@ -257,6 +262,21 @@ export default function Home() {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
+                    所要時間 (分)
+                  </label>
+                  <input
+                    type="number"
+                    value={formData.duration}
+                    onChange={(e) => setFormData({ ...formData, duration: e.target.value })}
+                    placeholder="例: 60"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+
+                {/* 4行目: (空) | 期限 */}
+                <div className="hidden md:block"></div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
                     期限
                   </label>
                   <input
@@ -265,6 +285,7 @@ export default function Home() {
                     onChange={(e) => setFormData({ ...formData, dueDate: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 font-sans"
                   />
+                </div>
                 </div>
               </div>
 

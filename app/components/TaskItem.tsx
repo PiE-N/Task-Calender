@@ -10,6 +10,7 @@ interface TaskItemProps {
   onEdit: (task: Task) => void;
   onDelete: (id: string) => void;
   isCompact?: boolean;
+  isDraggable?: boolean;
 }
 
 const priorityColors = {
@@ -18,7 +19,7 @@ const priorityColors = {
   high: { border: 'border-red-300', bg: 'bg-red-50', text: 'text-red-900', label: 'bg-red-100' }, 
 };
 
-export default function TaskItem({ task, index, onEdit, onDelete, isCompact = false }: TaskItemProps) {
+export default function TaskItem({ task, index, onEdit, onDelete, isCompact = false, isDraggable = true }: TaskItemProps) {
   const { dueDate, startTime, duration } = task;
 
   const today = new Date();
@@ -38,7 +39,7 @@ export default function TaskItem({ task, index, onEdit, onDelete, isCompact = fa
   const colors = priorityColors[task.priority];
 
   return (
-    <Draggable draggableId={task.id} index={index}>
+    <Draggable draggableId={task.id} index={index} isDragDisabled={!isDraggable}>
       {(provided, snapshot) => {
         if (isCompact) {
           return (
@@ -47,11 +48,14 @@ export default function TaskItem({ task, index, onEdit, onDelete, isCompact = fa
               {...provided.draggableProps}
               {...provided.dragHandleProps}
               style={provided.draggableProps.style}
-              className={`text-[10px] p-1 mb-1 rounded border-l-2 truncate cursor-move transition-shadow ${
+              className={`text-[10px] p-1 mb-1 rounded border-l-2 truncate transition-shadow ${
+                isDraggable ? 'cursor-move' : 'cursor-pointer'
+              } ${
                 colors.label
               } ${colors.border} ${colors.text} ${
                 snapshot.isDragging ? 'shadow-lg ring-1 ring-blue-400 z-50 opacity-90' : 'hover:brightness-95'
               }`}
+              onClick={() => onEdit(task)} // ここにonClickハンドラを追加
               title={`${task.title}${dueDate ? ` (期限: ${dueDate})` : ''}${
                 startTime ? ` (${startTime}${duration ? ` ${duration}分` : ''})` : ''
               }`}
@@ -67,7 +71,9 @@ export default function TaskItem({ task, index, onEdit, onDelete, isCompact = fa
           {...provided.draggableProps}
           {...provided.dragHandleProps}
           style={provided.draggableProps.style}
-          className={`p-2 rounded border-l-4 cursor-move shadow min-h-[80px] flex flex-col justify-between transition-all border-y border-r border-black/10 ${
+          className={`p-2 rounded border-l-4 shadow min-h-[80px] flex flex-col justify-between transition-all border-y border-r border-black/10 ${
+            isDraggable ? 'cursor-move' : 'cursor-pointer'
+          } ${
             snapshot.isDragging ? 'opacity-70 ring-2 ring-blue-500 shadow-xl z-50' : 'hover:shadow-md'
           } ${colors.bg} ${colors.border}`}
         >
