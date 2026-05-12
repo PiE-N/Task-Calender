@@ -287,7 +287,6 @@ export default function Home() {
                   />
                 </div>
                 </div>
-              </div>
 
               {/* モーダルのアクションボタン */}
               <div className="flex gap-3 mt-6">
