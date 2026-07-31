@@ -106,6 +106,14 @@ export default function Home() {
     setIsModalOpen(false);
   };
 
+  // モーダル内のタスクを削除
+  const handleDeleteTaskInModal = () => {
+    if (editingTask) {
+      deleteTask(editingTask.id);
+      setIsModalOpen(false);
+    }
+  };
+
   const handleDragEnd = useCallback(
     (result: DropResult) => {
       const { source, destination, draggableId } = result;
@@ -185,9 +193,20 @@ export default function Home() {
         {isModalOpen && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[60] p-4">
             <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
-              <h2 className="text-2xl font-bold mb-4">
-                {editingTask ? 'タスク編集' : '新規タスク'}
-              </h2>
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-2xl font-bold">
+                  {editingTask ? 'タスク編集' : '新規タスク'}
+                </h2>
+                {editingTask && (
+                  <button
+                    onClick={handleDeleteTaskInModal}
+                    className="px-3 py-1 bg-red-500 text-white rounded-md hover:bg-red-600 transition text-sm font-medium"
+                    title="このタスクを削除"
+                  >
+                    削除
+                  </button>
+                )}
+              </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
                 {/* 1行目: タスク名 | 日付 */}
